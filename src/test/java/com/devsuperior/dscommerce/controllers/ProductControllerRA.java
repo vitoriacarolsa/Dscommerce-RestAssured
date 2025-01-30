@@ -1,5 +1,6 @@
 package com.devsuperior.dscommerce.controllers;
 
+import com.devsuperior.dscommerce.tests.TokenUtil;
 import io.restassured.http.ContentType;
 import org.json.JSONException;
 import org.json.simple.JSONObject;
@@ -19,8 +20,11 @@ import static org.hamcrest.CoreMatchers.is;
 
 public class ProductControllerRA {
 
+    private String clientUsername, clientPassword, adminUsername, adminPassword;
+    private String adminToken, clientToken, invalidToken;
     private Long existingProductId, nonExistingProductId, dependentProductId;
     private String productName;
+
     private Map<String, Object> postProductInstance;
 
     @BeforeEach
@@ -28,6 +32,15 @@ public class ProductControllerRA {
         baseURI = "http://localhost:8080";
 
         productName = "Macbook";
+
+        clientUsername = "maria@gmail.com";
+        clientPassword = "123456";
+        adminUsername = "alex@gmail.com";
+        adminPassword = "123456";
+
+        clientToken = TokenUtil.obtainAccessToken(clientUsername, clientPassword);
+        adminToken = TokenUtil.obtainAccessToken(adminUsername, adminPassword);
+        invalidToken = adminToken + "xpto";
 
         postProductInstance = new HashMap<>();
         postProductInstance.put("name", "Me 123");
@@ -99,7 +112,6 @@ public class ProductControllerRA {
     public void insertShouldReturnProductCreatedWhenLoggedAsAdmin() throws JSONException {
         JSONObject newProduct = new JSONObject(postProductInstance);
 
-        String adminToken=null;
         given()
                 .header("Content-type", "application/json")
                 .header("Authorization", "Bearer " + adminToken)
